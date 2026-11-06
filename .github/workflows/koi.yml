@@ -17,11 +17,13 @@ jobs:
   koi:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: yalongwastaken/git-koi@v1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: yalongwastaken/git-koi@7305e9b1fadee6f43d3b4fa543a25d4cde79856e
         with:
           body: white
           output-dir: koi
+          # Add a personal access token with read:user as GIT_KOI_TOKEN.
+          token: ${{ secrets.GIT_KOI_TOKEN || github.token }}
       - name: Commit the koi if it changed
         shell: bash
         run: |
