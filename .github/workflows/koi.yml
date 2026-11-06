@@ -18,12 +18,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Verify private contribution access
+        env:
+          GIT_KOI_TOKEN: ${{ secrets.GIT_KOI_TOKEN }}
+        shell: bash
+        run: |
+          if [[ -z "$GIT_KOI_TOKEN" ]]; then
+            echo "::error::Set GIT_KOI_TOKEN to a classic personal access token with read:user scope."
+            exit 1
+          fi
+          scopes="$(GH_TOKEN="$GIT_KOI_TOKEN" gh api --include user 2>/dev/null | awk 'tolower($1) == "x-oauth-scopes:" { $1 = ""; sub(/^[[:space:]]+/, ""); print; exit }')"
+          if ! grep -Eq '(^|[,[:space:]])read:user([,[:space:]]|$)' <<< "$scopes"; then
+            echo "::error::GIT_KOI_TOKEN is missing the read:user scope required for private contributions."
+            exit 1
+          fi
+          echo "Verified the contribution token has read:user."
       - uses: yalongwastaken/git-koi@7305e9b1fadee6f43d3b4fa543a25d4cde79856e
         with:
           body: white
           output-dir: koi
-          # Add a personal access token with read:user as GIT_KOI_TOKEN.
-          token: ${{ secrets.GIT_KOI_TOKEN || github.token }}
+          token: ${{ secrets.GIT_KOI_TOKEN }}
       - name: Commit the koi if it changed
         shell: bash
         run: |
