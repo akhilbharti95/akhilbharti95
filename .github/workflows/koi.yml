@@ -27,7 +27,7 @@ jobs:
             echo "::error::Set GIT_KOI_TOKEN to a classic personal access token with read:user scope."
             exit 1
           fi
-          scopes="$(GH_TOKEN="$GIT_KOI_TOKEN" gh api --include user 2>/dev/null | awk 'tolower($1) == "x-oauth-scopes:" { $1 = ""; sub(/^[[:space:]]+/, ""); print; exit }')"
+          scopes="$(GH_TOKEN="$GIT_KOI_TOKEN" gh api --include user 2>/dev/null | awk 'tolower($1) == "x-oauth-scopes:" { $1 = ""; sub(/^[[:space:]]+/, ""); print }')"
           if ! grep -Eq '(^|[,[:space:]])read:user([,[:space:]]|$)' <<< "$scopes"; then
             echo "::error::GIT_KOI_TOKEN is missing the read:user scope required for private contributions."
             exit 1
